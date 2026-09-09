@@ -45,7 +45,9 @@ PHISHING_URL_PATTERNS = [
     r'(arnazon|amaz0n|amazom)',      # Amazon lookalike
     r'(micros0ft|micosoft)',         # Microsoft lookalike
     r'(faceb00k|facebok)',           # Facebook lookalike
+    r'(paypal|apple|google|amazon|microsoft|netflix).*(security|update|verify|login|account)',
     r'secure.*login.*verify',
+    r'security.*verify.*login',
     r'account.*suspend.*verify',
     r'confirm.*password.*account',
     r'bank.*login.*secure',

@@ -146,7 +146,7 @@ class Device(models.Model):
     device_type = models.CharField(
         max_length=10, choices=DEVICE_TYPE_CHOICES, default=DEVICE_LAPTOP
     )
-    os = models.CharField(max_length=50, default='Linux')
+    os = models.CharField(max_length=50, default='Windows')
     os_version = models.CharField(max_length=50, blank=True)
     # device_token is the credential used by the desktop agent and extension
     # to authenticate API calls. Treat it like a password — rotate if compromised.

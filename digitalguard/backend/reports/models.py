@@ -14,6 +14,9 @@ class Report(models.Model):
     REPORT_WEEKLY = 'WEEKLY'
     REPORT_MONTHLY = 'MONTHLY'
     REPORT_CUSTOM = 'CUSTOM'
+    TYPE_WEEKLY = REPORT_WEEKLY
+    TYPE_MONTHLY = REPORT_MONTHLY
+    TYPE_CUSTOM = REPORT_CUSTOM
     REPORT_TYPE_CHOICES = [
         (REPORT_WEEKLY, 'Weekly Summary'),
         (REPORT_MONTHLY, 'Monthly Summary'),

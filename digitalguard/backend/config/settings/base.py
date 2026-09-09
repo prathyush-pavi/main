@@ -15,6 +15,7 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
+    DJANGO_SECRET_KEY=(str, 'django-insecure-digitalguard-dev-secret-key-12345'),
     DEBUG=(bool, False),
     LOG_LEVEL=(str, 'INFO'),
     ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
@@ -24,7 +25,10 @@ env = environ.Env(
 )
 
 # Read .env file if present (development convenience only)
-environ.Env.read_env(BASE_DIR / '.env')
+if (BASE_DIR / '.env').exists():
+    environ.Env.read_env(BASE_DIR / '.env')
+elif (BASE_DIR.parent / '.env').exists():
+    environ.Env.read_env(BASE_DIR.parent / '.env')
 
 # ─────────────────────────────────────────────────────────────
 # Core

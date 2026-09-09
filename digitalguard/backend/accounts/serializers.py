@@ -12,7 +12,7 @@ from .models import User, ParentProfile, ChildProfile, Device
 class RegisterSerializer(serializers.ModelSerializer):
     """Parent user registration with password confirmation."""
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password')
+    password2 = serializers.CharField(write_only=True, required=False, label='Confirm Password')
     display_name = serializers.CharField(required=True, max_length=100)
 
     class Meta:
@@ -20,13 +20,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('email', 'username', 'password', 'password2', 'display_name')
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        if 'password2' in attrs and attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({'password': 'Passwords do not match.'})
         return attrs
 
     def create(self, validated_data):
         display_name = validated_data.pop('display_name')
-        validated_data.pop('password2')
+        validated_data.pop('password2', None)
         user = User.objects.create_user(
             email=validated_data['email'],
             username=validated_data.get('username', validated_data['email']),
@@ -47,6 +47,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Extended JWT token serializer — adds user info to token response."""
     def validate(self, attrs):
         data = super().validate(attrs)
+        data['tokens'] = {
+            'access': data.get('access'),
+            'refresh': data.get('refresh'),
+        }
         data['user'] = {
             'id': self.user.id,
             'email': self.user.email,

@@ -16,8 +16,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api_root, name='api-root'),
 
-    # Authentication
-    path('api/auth/', include('accounts.urls')),
+    # Authentication & Accounts
+    path('api/', include('accounts.urls')),
 
     # Core resources
     path('api/', include('monitoring.urls')),

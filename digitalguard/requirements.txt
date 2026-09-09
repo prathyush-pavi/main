@@ -52,4 +52,3 @@ coverage>=7.3
 # Utilities
 python-decouple>=3.8
 Pillow>=10.0  # image utilities
-hashlib-compat>=1.0  # SHA-256 utilities (stdlib on Python 3.11+)
