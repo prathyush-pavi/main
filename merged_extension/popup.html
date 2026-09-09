@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --bg: #e0e5ec;
+      --shadow-light: #ffffff;
+      --shadow-dark: #a3b1c6;
+      --primary: #5b7be8;
+      --primary-dark: #4a67d4;
+      --danger: #e85b6a;
+      --warning: #e8a44a;
+      --success: #4ab87a;
+      --text-main: #2c3a5c;
+      --text-muted: #7a8ba8;
+      --text-light: #a3b1c6;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body.dark {
+      --bg: #1e2330;
+      --shadow-light: #262d3e;
+      --shadow-dark: #141820;
+      --primary: #7b9ef5;
+      --primary-dark: #5b7be8;
+      --danger: #f07080;
+      --warning: #f0b060;
+      --success: #5ecf8e;
+      --text-main: #d0d8f0;
+      --text-muted: #8892b0;
+      --text-light: #555f7a;
+    }
+
+    /* ── Dark mode toggle button ── */
+    .dark-toggle {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      border: none;
+      background: var(--bg);
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      margin-left: 6px;
+      padding: 0;
+      line-height: 1;
+    }
+    .dark-toggle:hover {
+      box-shadow: 4px 4px 9px var(--shadow-dark), -4px -4px 9px var(--shadow-light);
+      transform: translateY(-1px);
+    }
+    .dark-toggle:active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      transform: translateY(0);
+    }
+
+    /* Login screen dark toggle (top-right corner) */
+    .login-dark-toggle-wrap {
+      position: absolute;
+      top: 14px; right: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 420px;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-main);
+      position: relative;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    /* Suppress transitions on initial load to avoid flash-animate */
+    body.no-transition *,
+    body.no-transition {
+      transition: none !important;
+    }
+    *, *::before, *::after {
+      transition:
+        background 0.35s ease,
+        background-color 0.35s ease,
+        color 0.35s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+    }
+    /* Override: keep interaction transitions snappy (don't let theme transition fight hover/active) */
+    button { transition:
+      background 0.35s ease,
+      background-color 0.35s ease,
+      color 0.35s ease,
+      box-shadow 0.2s ease,
+      border-color 0.35s ease,
+      transform 0.2s ease !important;
+    }
+
+    /* ── Neumorphic base mixins ── */
+    .neu-flat {
+      background: var(--bg);
+      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+      border-radius: 12px;
+    }
+    .neu-inset {
+      background: var(--bg);
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+      border-radius: 10px;
+    }
+    .neu-pressed {
+      background: var(--bg);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: var(--bg);
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      box-shadow: 0 4px 10px rgba(163,177,198,0.5), 0 -2px 6px rgba(255,255,255,0.7);
+    }
+    .header-icon-wrap {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--bg);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-icon-wrap img { width: 32px; height: 32px; border-radius: 8px; }
+    .app-header-title { font-size: 15px; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px; }
+    .app-header-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+    .header-badge {
+      margin-left: auto;
+      background: var(--bg);
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--success);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Nav Tabs ── */
+    .nav-tabs {
+      display: flex;
+      padding: 14px 16px 0;
+      gap: 6px;
+      background: var(--bg);
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: var(--bg);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-family: var(--font);
+      border-radius: 10px 10px 0 0;
+      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+      transition: all 0.25s ease;
+      letter-spacing: 0.2px;
+    }
+    .nav-tab:hover { color: var(--primary); }
+    .nav-tab.active {
+      color: var(--primary);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Container ── */
+    .container { padding: 14px 16px 16px; }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 0 8px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--shadow-dark), transparent);
+      opacity: 0.4;
+    }
+
+    /* ── Input ── */
+    .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+    input {
+      flex: 1;
+      padding: 10px 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: var(--font);
+      font-weight: 600;
+      background: var(--bg);
+      color: var(--text-main);
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+      transition: box-shadow 0.2s;
+      outline: none;
+    }
+    input::placeholder { color: var(--text-light); font-weight: 600; }
+    input:focus {
+      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light), 0 0 0 2px rgba(91,123,232,0.2);
+    }
+
+    /* ── Buttons ── */
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--primary);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+      transition: all 0.2s ease;
+      letter-spacing: 0.2px;
+    }
+    button:hover {
+      box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+      transform: translateY(-1px);
+    }
+    button:active {
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      transform: translateY(0);
+    }
+
+    /* Primary button */
+    .btn-primary {
+      background: linear-gradient(135deg, #6b8cf0, #4a67d4);
+      color: white;
+      box-shadow: 4px 4px 12px rgba(74,103,212,0.4), -2px -2px 8px rgba(255,255,255,0.6);
+    }
+    .btn-primary:hover {
+      box-shadow: 5px 5px 15px rgba(74,103,212,0.5), -2px -2px 8px rgba(255,255,255,0.7);
+    }
+    .btn-primary:active {
+      box-shadow: inset 3px 3px 8px rgba(0,0,0,0.2), inset -2px -2px 6px rgba(255,255,255,0.1);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f07080, #d44455);
+      color: white;
+      box-shadow: 4px 4px 12px rgba(212,68,85,0.35), -2px -2px 8px rgba(255,255,255,0.6);
+    }
+    .btn-danger:hover { box-shadow: 5px 5px 15px rgba(212,68,85,0.45), -2px -2px 8px rgba(255,255,255,0.7); }
+    .btn-danger:active { box-shadow: inset 3px 3px 8px rgba(0,0,0,0.2), inset -2px -2px 6px rgba(255,255,255,0.1); }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f0b060, #d48c2a);
+      color: white;
+      box-shadow: 4px 4px 12px rgba(212,140,42,0.35), -2px -2px 8px rgba(255,255,255,0.6);
+    }
+    .btn-warning:hover { box-shadow: 5px 5px 15px rgba(212,140,42,0.45), -2px -2px 8px rgba(255,255,255,0.7); }
+
+    .btn-muted {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* ── Blocked list ── */
+    .blocked-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding-right: 2px; }
+    .blocked-list::-webkit-scrollbar { width: 4px; }
+    .blocked-list::-webkit-scrollbar-track { background: transparent; }
+    .blocked-list::-webkit-scrollbar-thumb { background: var(--shadow-dark); border-radius: 4px; }
+
+    .blocked-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    }
+    .blocked-item .site-label {
+      font-size: 12px;
+      color: var(--danger);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(232, 91, 106, 0.55), 0 0 18px rgba(232, 91, 106, 0.25);
+    }
+    .tld-badge {
+      display: inline-block;
+      background: var(--bg);
+      color: var(--success);
+      box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+      border-radius: 5px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      margin-left: 6px;
+      cursor: help;
+    }
+    .btn-group { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+
+    /* Small buttons */
+    .remove-btn, .temp-btn, .toggle-preset-btn {
+      padding: 4px 10px;
+      font-size: 10px;
+      border-radius: 7px;
+    }
+    .remove-btn { color: var(--danger); }
+    .remove-btn:hover { background: linear-gradient(135deg, #f07080, #d44455); color: white; box-shadow: 3px 3px 8px rgba(212,68,85,0.35), -2px -2px 6px rgba(255,255,255,0.6); }
+    .temp-btn { color: var(--warning); }
+    .temp-btn:hover { background: linear-gradient(135deg, #f0b060, #d48c2a); color: white; box-shadow: 3px 3px 8px rgba(212,140,42,0.35); }
+    .toggle-preset-btn.add-preset { color: var(--danger); }
+    .toggle-preset-btn.add-preset:hover { background: linear-gradient(135deg, #f07080, #d44455); color: white; box-shadow: 3px 3px 8px rgba(212,68,85,0.35); }
+    .toggle-preset-btn.remove-preset { color: var(--primary); }
+    .toggle-preset-btn.remove-preset:hover { background: linear-gradient(135deg, #6b8cf0, #4a67d4); color: white; box-shadow: 3px 3px 8px rgba(74,103,212,0.35); }
+
+    .temp-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg);
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      color: var(--warning);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .temp-active-badge .countdown { font-weight: 800; color: #c07020; }
+
+    /* ── Preset categories ── */
+    .preset-list { max-height: 260px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; padding-bottom: 2px; }
+    .preset-list::-webkit-scrollbar { width: 4px; }
+    .preset-list::-webkit-scrollbar-track { background: transparent; }
+    .preset-list::-webkit-scrollbar-thumb { background: var(--shadow-dark); border-radius: 4px; }
+    .preset-category {
+      border-radius: 12px;
+      background: var(--bg);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+      overflow: visible;
+      flex-shrink: 0;
+    }
+    .preset-category-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .preset-category-header:hover { background: rgba(163,177,198,0.1); }
+    .preset-chevron {
+      font-size: 9px;
+      color: var(--text-light);
+      transition: transform 0.22s ease;
+    }
+    .preset-chevron.open { transform: rotate(90deg); }
+    .preset-category-title { flex: 1; font-size: 13px; font-weight: 800; color: var(--text-main); }
+    .preset-count-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--primary);
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+    }
+    .preset-count-badge.has-blocked { color: var(--danger); }
+    .block-all-btn { padding: 4px 10px; font-size: 10px; border-radius: 7px; color: var(--danger); }
+    .block-all-btn:hover { background: linear-gradient(135deg, #f07080, #d44455); color: white; box-shadow: 3px 3px 8px rgba(212,68,85,0.35); }
+    .block-all-btn.unblock { color: var(--text-muted); }
+    .block-all-btn.unblock:hover { background: linear-gradient(135deg, #9aa5c0, #7a8ba8); color: white; box-shadow: 3px 3px 8px rgba(122,139,168,0.35); }
+    .preset-items-body {
+      background: rgba(163,177,198,0.08);
+      padding: 6px 10px 9px;
+      display: none;
+      gap: 4px;
+      flex-direction: column;
+      border-top: 1px solid rgba(163,177,198,0.2);
+      border-radius: 0 0 12px 12px;
+    }
+    .preset-items-body.open { display: flex; }
+    .preset-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+    }
+    .preset-item.active {
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light),
+                  0 0 8px rgba(232, 91, 106, 0.28), 0 0 18px rgba(232, 91, 106, 0.12);
+      border: 1px solid rgba(232, 91, 106, 0.18);
+    }
+    .preset-item .site-label { font-size: 12px; color: var(--text-muted); flex: 1; font-weight: 600; }
+    .preset-item.active .site-label { color: var(--danger); }
+
+    /* ── Log tab ── */
+    .log-stats {
+      background: var(--bg);
+      box-shadow: inset 4px 4px 9px var(--shadow-dark), inset -4px -4px 9px var(--shadow-light);
+      padding: 10px 13px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .log-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 8px 11px;
+      background: var(--bg);
+      border-radius: 10px;
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+      cursor: help;
+      transition: all 0.15s;
+    }
+    .log-item:hover { box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light); transform: translateX(3px); }
+    .log-item.blocked {
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light), -3px 0 0 var(--danger);
+      background: rgba(232, 91, 106, 0.06);
+    }
+    .log-item.incognito {
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light), -3px 0 0 #7c5cbf;
+      background: rgba(124, 92, 191, 0.06);
+    }
+    .log-item.blocked.incognito {
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light), -3px 0 0 #a0306b;
+      background: rgba(160, 48, 107, 0.07);
+    }
+    .log-url { font-weight: 700; color: var(--text-main); word-break: break-all; font-size: 12px; }
+    .log-time { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+    .log-blocked-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f07080, #d44455);
+      color: white;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      margin-left: 6px;
+    }
+    .log-incognito-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #9b7de0, #7c5cbf);
+      color: white;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      margin-left: 6px;
+    }
+
+    /* ── Alerts ── */
+    .nav-tab-inner { position: relative; display: inline-flex; align-items: center; gap: 5px; }
+    .alert-badge {
+      display: none;
+      background: linear-gradient(135deg, #f07080, #d44455);
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 10px;
+      padding: 1px 5px;
+      min-width: 16px;
+      text-align: center;
+      line-height: 14px;
+    }
+    .alert-item {
+      background: var(--bg);
+      border-radius: 10px;
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light), -3px 0 0 var(--danger);
+      padding: 10px 12px;
+      margin-bottom: 7px;
+    }
+    .alert-item.extension-disabled {
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light), -3px 0 0 var(--warning);
+      background: rgba(232, 164, 74, 0.06);
+    }
+    .alert-ext-detail {
+      font-size: 11px;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 2px 0;
+    }
+    .alert-ext-label {
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .alert-site { font-weight: 800; font-size: 12px; color: var(--danger); margin-bottom: 3px; }
+    .alert-url { font-size: 11px; color: var(--text-muted); word-break: break-all; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+    .alert-time { font-size: 10px; color: var(--text-light); margin-bottom: 5px; font-weight: 600; }
+    .alert-keywords { display: flex; flex-wrap: wrap; gap: 4px; }
+    .alert-keyword-pill {
+      background: var(--bg);
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+      color: var(--danger);
+      border-radius: 10px;
+      padding: 2px 9px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .alerts-list { max-height: 200px; overflow-y: auto; }
+    .alert-categories { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+    .alert-cat-row {
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    }
+    .alert-cat-header {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .alert-cat-header:hover, .alert-cat-header.open { background: rgba(163,177,198,0.1); }
+    .alert-cat-name { flex: 1; font-size: 11px; font-weight: 800; color: var(--danger); }
+    .alert-cat-count {
+      font-size: 10px; font-weight: 800;
+      background: var(--bg);
+      box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+      color: var(--danger);
+      border-radius: 8px; padding: 1px 7px;
+    }
+    .alert-cat-chevron { font-size: 8px; color: var(--text-light); transition: transform 0.2s; }
+    .alert-cat-chevron.open { transform: rotate(90deg); }
+    .alert-cat-body { display: none; flex-wrap: wrap; gap: 4px; padding: 7px 10px; border-top: 1px solid rgba(163,177,198,0.2); }
+    .alert-cat-body.open { display: flex; }
+
+    /* ── Keyword manager ── */
+    .kw-dropdown {
+      border-radius: 10px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    }
+    .kw-dropdown-header {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .kw-dropdown-header:hover { background: rgba(163,177,198,0.08); }
+    .kw-dropdown-title { flex: 1; font-size: 12px; font-weight: 800; color: var(--text-main); }
+    .kw-dropdown-count {
+      font-size: 10px; font-weight: 800;
+      background: linear-gradient(135deg, #f07080, #d44455);
+      color: white;
+      border-radius: 10px; padding: 1px 8px;
+      min-width: 22px; text-align: center;
+    }
+    .kw-dropdown-count.all-off {
+      background: var(--bg);
+      color: var(--text-muted);
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    }
+    .kw-dropdown-chevron { font-size: 9px; color: var(--text-light); transition: transform 0.2s; flex-shrink: 0; }
+    .kw-dropdown-chevron.open { transform: rotate(90deg); }
+    .kw-dropdown-body { padding: 10px 12px; border-top: 1px solid rgba(163,177,198,0.2); background: rgba(163,177,198,0.04); }
+
+    /* Search bar inside accordion */
+    .kw-search-wrap { position: relative; margin-bottom: 9px; }
+    .kw-search-wrap input {
+      width: 100%;
+      padding: 5px 28px 5px 10px;
+      font-size: 11px;
+      border-radius: 8px;
+      box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+    }
+    .kw-search-clear {
+      position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+      font-size: 11px; color: var(--text-light); cursor: pointer;
+      background: none; border: none; box-shadow: none; padding: 0; line-height: 1;
+    }
+    .kw-search-clear:hover { color: var(--danger); transform: translateY(-50%); box-shadow: none; }
+
+    .kw-dropdown-actions { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
+    .kw-enable-all-btn, .kw-disable-all-btn {
+      padding: 4px 11px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 6px;
+    }
+    .kw-enable-all-btn { color: var(--primary); }
+    .kw-enable-all-btn:hover { background: linear-gradient(135deg, #6b8cf0, #4a67d4); color: white; box-shadow: 3px 3px 8px rgba(74,103,212,0.35); }
+    .kw-disable-all-btn { color: var(--text-muted); }
+    .kw-disable-all-btn:hover { background: linear-gradient(135deg, #9aa5c0, #7a8ba8); color: white; }
+    .kw-active-tally {
+      margin-left: auto;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+    }
+
+    .kw-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+    .kw-chips-hidden { display: none; }
+    .kw-show-more {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 10px; font-weight: 800;
+      color: var(--primary);
+      cursor: pointer;
+      background: none; border: none; box-shadow: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .kw-show-more:hover { background: rgba(91,123,232,0.12); box-shadow: none; transform: none; }
+    .kw-no-results { font-size: 11px; color: var(--text-light); font-weight: 600; padding: 4px 2px; }
+
+    .kw-chip {
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: var(--bg);
+      color: var(--text-muted);
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+      transition: all 0.15s;
+      user-select: none;
+      font-family: var(--font);
+      white-space: nowrap;
+    }
+    .kw-chip.active {
+      background: linear-gradient(135deg, #f07080, #d44455);
+      color: white;
+      box-shadow: 2px 2px 6px rgba(212,68,85,0.4), -1px -1px 4px rgba(255,255,255,0.5);
+    }
+    .kw-chip.kw-hidden { display: none; }
+    .kw-chip:hover { opacity: 0.85; }
+
+    /* ── Blur toggle button ── */
+    .kw-blur-toggle {
+      padding: 3px 9px;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      letter-spacing: 0.2px;
+      flex-shrink: 0;
+      transition: all 0.18s;
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+    }
+    .kw-blur-toggle.blur-on {
+      background: linear-gradient(135deg, #7b9ef5, #5b7be8);
+      color: white;
+      box-shadow: 2px 2px 6px rgba(74,103,212,0.4), -1px -1px 4px rgba(255,255,255,0.5);
+    }
+    .kw-blur-toggle.blur-off {
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+    .kw-blur-toggle:hover { transform: translateY(-1px); opacity: 0.9; }
+    .kw-blur-toggle:active { transform: translateY(0); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
+
+    /* ── Custom keyword category badge ── */
+    .kw-cat-badge {
+      display: inline-block;
+      background: rgba(91,123,232,0.18);
+      color: var(--primary);
+      border-radius: 6px;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 5px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── Scan ── */
+    .scan-section { margin-bottom: 10px; }
+    .scan-result { font-size: 12px; font-weight: 600; padding: 5px 0; min-height: 18px; color: var(--text-muted); }
+
+    /* ── Misc ── */
+    .empty-state { text-align: center; color: var(--text-light); padding: 16px; font-size: 12px; font-weight: 600; }
+
+    .logout-btn { color: var(--text-muted); font-size: 12px; margin-top: 10px; }
+    .clear-log-btn { color: var(--warning); margin-top: 10px; }
+    .clear-alerts-btn { color: var(--danger); margin-top: 10px; }
+    .full-width-btn { width: 100%; }
+
+    /* ── Login screen ── */
+    #loginScreen { display: flex; flex-direction: column; gap: 14px; padding: 24px 20px; }
+
+    /* ── View Log button (login screen, read-only) ── */
+    .view-log-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 9px 14px; border: none; border-radius: 10px;
+      background: var(--bg); color: var(--text-muted);
+      font-size: 12px; font-weight: 700; font-family: var(--font); cursor: pointer;
+      box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+      transition: all 0.2s ease;
+    }
+    .view-log-btn:hover {
+      color: var(--primary); transform: translateY(-1px);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    }
+    .view-log-btn:active {
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      transform: translateY(0);
+    }
+    #viewLogPanel { display: none; flex-direction: column; gap: 0; }
+    .view-log-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .view-log-title { flex: 1; font-size: 13px; font-weight: 800; color: var(--text-main); }
+    .view-log-close {
+      padding: 4px 10px; font-size: 11px; font-weight: 700; font-family: var(--font);
+      color: var(--text-muted); background: var(--bg); border: none; border-radius: 8px; cursor: pointer;
+      box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+    }
+    .view-log-close:hover { color: var(--danger); }
+    .view-log-stats {
+      background: var(--bg);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      padding: 8px 12px; border-radius: 10px; margin-bottom: 8px;
+      font-size: 11px; color: var(--primary); font-weight: 700;
+    }
+    #viewLogList {
+      max-height: 260px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 5px;
+      scrollbar-width: thin; scrollbar-color: var(--shadow-dark) transparent;
+    }
+    #viewLogList::-webkit-scrollbar { width: 4px; }
+    #viewLogList::-webkit-scrollbar-thumb { background: var(--shadow-dark); border-radius: 4px; }
+    .view-log-note {
+      text-align: center; font-size: 10px; font-style: italic;
+      color: var(--text-light); font-weight: 600; margin-top: 6px;
+    }
+
+    /* ── Blur toggle button inside alert category rows ── */
+    .alert-blur-btn {
+      padding: 2px 8px; font-size: 9px; font-weight: 800; border-radius: 7px;
+      border: none; cursor: pointer; font-family: var(--font);
+      letter-spacing: 0.2px; flex-shrink: 0; transition: all 0.18s;
+    }
+    .alert-blur-btn.blur-on {
+      background: linear-gradient(135deg, #7b9ef5, #5b7be8); color: white;
+      box-shadow: 2px 2px 6px rgba(74,103,212,0.4), -1px -1px 4px rgba(255,255,255,0.5);
+    }
+    .alert-blur-btn.blur-off {
+      background: var(--bg); color: var(--text-muted);
+      box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+    }
+    .alert-blur-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+    .alert-blur-btn:active {
+      transform: translateY(0);
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    }
+    #mainScreen { display: none; }
+    .login-header { text-align: center; margin-bottom: 4px; }
+    .login-icon-ring {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 72px; height: 72px;
+      border-radius: 22px;
+      background: var(--bg);
+      box-shadow: 7px 7px 15px var(--shadow-dark), -7px -7px 15px var(--shadow-light);
+    }
+    .login-icon-ring img { width: 52px; height: 52px; border-radius: 14px; }
+    .login-title { text-align: center; font-size: 20px; font-weight: 900; color: var(--text-main); margin: 0 0 3px; }
+    .login-sub { text-align: center; font-size: 12px; color: var(--text-muted); margin: 0 0 4px; font-weight: 600; }
+    .login-form { display: flex; flex-direction: column; gap: 13px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .error-message {
+      background: var(--bg);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light), 0 0 0 1px rgba(212,68,85,0.3);
+      color: var(--danger);
+      padding: 10px 13px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+    }
+    .setup-message {
+      background: var(--bg);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      color: var(--primary);
+      padding: 11px 13px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* ── Incognito panel ── */
+    .incognito-setup-box {
+      background: var(--bg);
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light), 0 0 0 2px rgba(232,164,74,0.3);
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 8px;
+    }
+    .incognito-setup-title { font-size: 12px; font-weight: 800; color: var(--warning); margin-bottom: 7px; }
+    .incognito-setup-desc { font-size: 11px; color: var(--text-muted); margin: 0 0 8px; line-height: 1.6; font-weight: 600; }
+    .incognito-steps { font-size: 11px; color: var(--text-muted); margin: 0 0 9px 16px; padding: 0; line-height: 2; font-weight: 600; }
+    .incognito-status-row {
+      display: flex; align-items: center; gap: 9px;
+      background: var(--bg);
+      box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 11px; font-weight: 700;
+    }
+    #incognitoStatusText { flex: 1; color: var(--text-muted); }
+    .recheck-btn {
+      background: var(--bg);
+      box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+      color: var(--warning);
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 10px; font-weight: 800;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .recheck-btn:hover { background: linear-gradient(135deg, #f0b060, #d48c2a); color: white; box-shadow: 2px 2px 7px rgba(212,140,42,0.4); }
+    .incognito-status-row.ok #incognitoStatusText { color: var(--success); }
+    .setup-divider {
+      text-align: center; font-size: 10px; font-weight: 800;
+      color: var(--text-light);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin: 5px 0 11px;
+      position: relative;
+    }
+    .setup-divider::before, .setup-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%; width: 22%; height: 1px;
+      background: var(--shadow-dark); opacity: 0.4;
+    }
+    .setup-divider::before { left: 0; }
+    .setup-divider::after { right: 0; }
+    .incognito-warning-banner {
+      background: var(--bg);
+      box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light), -3px 0 0 var(--warning);
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 11px; color: var(--warning); font-weight: 700;
+    }
+    .incognito-warning-banner a { color: var(--primary); text-decoration: none; font-weight: 800; margin-left: 4px; }
+    .incognito-help-box {
+      background: var(--bg);
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      border-radius: 10px;
+      padding: 12px 13px;
+      font-size: 11px; color: var(--primary); font-weight: 700;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(44,58,92,0.45);
+      backdrop-filter: blur(3px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg);
+      border-radius: 18px;
+      padding: 22px;
+      width: 300px;
+      box-shadow: 10px 10px 25px var(--shadow-dark), -10px -10px 25px var(--shadow-light);
+    }
+    .modal h3 { margin: 0 0 5px; font-size: 15px; font-weight: 900; color: var(--text-main); }
+    .modal p { margin: 0 0 14px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .modal-site { font-weight: 800; color: var(--warning); }
+    .time-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .time-option {
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+      transition: all 0.18s;
+      font-family: var(--font);
+    }
+    .time-option:hover { color: var(--warning); transform: translateY(-1px); }
+    .time-option.selected {
+      box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+      background: linear-gradient(135deg, #f0b060, #d48c2a);
+      color: white;
+    }
+    .modal-actions { display: flex; gap: 9px; }
+    .modal-confirm-btn { flex: 1; }
+    .modal-cancel-btn { flex: 1; color: var(--text-muted); }
+    .modal-confirm-btn { color: var(--warning); font-weight: 800; }
+
+    /* scroll fixes */
+    .blocked-list, .alerts-list, #webLog {
+      scrollbar-width: thin;
+      scrollbar-color: var(--shadow-dark) transparent;
+    }
+    .preset-list {
+      scrollbar-width: thin;
+      scrollbar-color: var(--shadow-dark) transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="loginScreen">
+    <div class="login-dark-toggle-wrap">
+      <button class="dark-toggle" id="darkToggleLogin" title="Toggle dark mode">🌙</button>
+    </div>
+    <div class="login-header">
+      <div class="login-icon-ring">
+        <img src="icon128.png" alt="Shield">
+      </div>
+    </div>
+    <h2 class="login-title">Child Safety</h2>
+    <p class="login-sub">Protected browsing for families</p>
+
+    <div id="firstTimePanel" style="display:none;">
+      <div class="incognito-setup-box" id="incognitoSetupBox">
+        <div class="incognito-setup-title">⚠️ Action Required — Enable Incognito Protection</div>
+        <p class="incognito-setup-desc">
+          To block sites in private/incognito windows, you must enable this extension for incognito mode.
+          Without this step, children can bypass all blocks using private browsing.
+        </p>
+        <ol class="incognito-steps">
+          <li>Click the <strong>⋮</strong> icon in your toolbar</li>
+          <li>Click <strong>Extension</strong></li>
+          <li>Click <strong>"Manage Extension"</strong></li>
+          <li>Find <strong>Child Safety Module</strong> → <strong>Details</strong></li>
+          <li>Scroll to <strong>"Allow in Incognito"</strong></li>
+          <li>Toggle it <strong>ON</strong></li>
+          <li>Return here and continue setup</li>
+        </ol>
+        <div id="incognitoStatusRow" class="incognito-status-row">
+          <span id="incognitoStatusIcon">⏳</span>
+          <span id="incognitoStatusText">Checking incognito status…</span>
+          <button id="recheckIncognitoBtn" class="recheck-btn">Re-check</button>
+        </div>
+      </div>
+      <div class="setup-divider">Step 2 — Create your password</div>
+    </div>
+
+    <div id="incognitoWarningBanner" class="incognito-warning-banner" style="display:none;">
+      ⚠️ <strong>Incognito not protected!</strong> Children can bypass blocks using private browsing.
+      <a href="#" id="showIncognitoHelpLink">How to fix →</a>
+    </div>
+
+    <div id="incognitoHelpBox" class="incognito-help-box" style="display:none;">
+      <strong>To enable incognito blocking:</strong>
+      <ol class="incognito-steps">
+        <li>Right-click the toolbar icon</li>
+        <li>Click <strong>"Manage Extension"</strong></li>
+        <li>Toggle <strong>"Allow in Incognito"</strong> ON</li>
+      </ol>
+      <button id="closeHelpBtn" class="recheck-btn" style="margin-top:7px;">Got it</button>
+    </div>
+
+    <div class="login-form">
+      <div id="setupMessage" class="setup-message" style="display:none;">First time setup: Create your parent password</div>
+      <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+      </div>
+      <div id="confirmPasswordGroup" class="form-group" style="display:none;">
+        <label for="confirmPasswordInput">Confirm Password</label>
+        <input type="password" id="confirmPasswordInput" placeholder="Confirm password">
+      </div>
+      <div id="errorMessage" class="error-message"></div>
+      <button id="loginBtn" class="btn-primary full-width-btn">Login</button>
+    </div>
+
+    <!-- ── View Log — read-only, no password required ── -->
+    <button class="view-log-btn" id="viewLogBtn">📊 View Browsing Log</button>
+    <div id="viewLogPanel">
+      <div class="view-log-header">
+        <span class="view-log-title">📊 Browsing Log</span>
+      </div>
+      <div class="view-log-stats" id="viewLogStats">Loading…</div>
+      <div id="viewLogList"></div>
+      <div class="view-log-note">🔒 Read-only — login to manage settings</div>
+    </div>
+  </div>
+
+  <!-- Main Screen -->
+  <div id="mainScreen">
+    <div class="app-header">
+      <div class="header-icon-wrap">
+        <img src="icon128.png" alt="Shield">
+      </div>
+      <div>
+        <div class="app-header-title">Child Safety Module</div>
+        <div class="app-header-sub">Active protection enabled</div>
+      </div>
+      <div class="header-badge">● LIVE</div>
+      <button class="dark-toggle" id="darkToggleMain" title="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="blocker">🚫 Blocker</button>
+      <button class="nav-tab" data-tab="history">📊 Web Log</button>
+      <button class="nav-tab" data-tab="alerts">
+        <span class="nav-tab-inner">🚨 Alerts<span class="alert-badge" id="alertBadge"></span></span>
+      </button>
+    </div>
+
+    <!-- Blocker Tab -->
+    <div id="blockerTab" class="tab-content active">
+      <div class="container">
+        <div class="section-header">✏️ Custom Blocklist</div>
+        <div class="input-group">
+          <input type="text" id="websiteInput" placeholder="e.g., facebook.com">
+          <button id="addBtn" class="btn-primary">Block</button>
+        </div>
+        <div id="blockedList" class="blocked-list"></div>
+
+        <div class="section-header">📋 Preset Blocklists</div>
+        <div id="presetList" class="preset-list"></div>
+
+        <button id="logoutBtn" class="logout-btn btn-muted full-width-btn">Logout</button>
+      </div>
+    </div>
+
+    <!-- Web Log Tab -->
+    <div id="historyTab" class="tab-content">
+      <div class="container">
+        <div class="log-stats" id="logStats">Loading...</div>
+        <div id="webLog" class="blocked-list"></div>
+        <button id="clearLogBtn" class="clear-log-btn full-width-btn">Clear Log</button>
+        <button id="logoutBtn2" class="logout-btn btn-muted full-width-btn">Logout</button>
+      </div>
+    </div>
+
+    <!-- Alerts Tab -->
+    <div id="alertsTab" class="tab-content">
+      <div class="container">
+        <div class="section-header">🔍 Scan a URL</div>
+        <div class="scan-section">
+          <div class="input-group">
+            <input type="text" id="scanUrlInput" placeholder="Paste URL to scan…" style="font-size:12px;padding:8px 11px;">
+            <button id="scanUrlBtn" class="btn-primary" style="padding:8px 14px;font-size:12px;">Scan</button>
+          </div>
+          <div id="scanResult" class="scan-result"></div>
+        </div>
+
+        <div class="section-header">🔑 Keyword Monitor</div>
+        <div id="keywordManager"></div>
+
+        <div class="section-header">🚨 Alert Log</div>
+        <div id="alertsList" class="alerts-list"></div>
+        <button id="clearAlertsBtn" class="clear-alerts-btn full-width-btn">Clear Alerts</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Temp Access Modal -->
+  <div class="modal-overlay" id="tempAccessModal">
+    <div class="modal">
+      <h3>⏱️ Temporary Access</h3>
+      <p>Grant temporary access to <span class="modal-site" id="modalSiteName"></span></p>
+      <div class="time-options">
+        <button class="time-option" data-minutes="5">5 min</button>
+        <button class="time-option" data-minutes="15">15 min</button>
+        <button class="time-option" data-minutes="30">30 min</button>
+        <button class="time-option" data-minutes="60">1 hour</button>
+        <button class="time-option" data-minutes="custom" id="customTimeOption" style="grid-column:span 2;">✏️ Custom</button>
+      </div>
+      <div id="customTimeGroup" style="display:none; margin-bottom:14px;">
+        <div style="font-size:10px; color:var(--text-muted); margin-bottom:7px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Enter duration:</div>
+        <div style="display:flex; gap:9px; align-items:center;">
+          <input type="number" id="customHours" min="0" max="23" placeholder="0" style="width:62px; flex:none; text-align:center;">
+          <span style="font-size:12px; color:var(--text-muted); font-weight:700;">hr</span>
+          <input type="number" id="customMinutes" min="0" max="59" placeholder="0" style="width:62px; flex:none; text-align:center;">
+          <span style="font-size:12px; color:var(--text-muted); font-weight:700;">min</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-confirm-btn" id="modalConfirmBtn">Grant Access</button>
+        <button class="modal-cancel-btn" id="modalCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "Child Safety Module",
+  "version": "5.0",
+  "description": "Protect children online with password-protected website blocking, preset blocklists, temporary access timers, and browsing logs. Works in incognito mode.",
+  "permissions": [
+    "storage",
+    "webNavigation",
+    "tabs",
+    "scripting",
+    "alarms",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["block_enforcer.js"],
+      "run_at": "document_start",
+      "match_origin_as_fallback": true,
+      "all_frames": false
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "match_origin_as_fallback": true,
+      "all_frames": false
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Child Safety Module",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "incognito": "split",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "blocked.html",
+        "icon16.png",
+        "icon48.png",
+        "icon128.png",
+        "blocked.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "blocked_sites_ruleset",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

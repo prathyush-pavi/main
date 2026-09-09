@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Restricted — Child Safety Module</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Non-blocking font load: page renders immediately with system font fallback,
+       Nunito swaps in when available. Works in incognito and offline. -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+  <style>
+    /* ══════════════════════════════════════════
+       LIGHT THEME (default) — colourful & fun
+       ══════════════════════════════════════════ */
+    :root {
+      --bg: #e8ecf4;
+      --shadow-light: #ffffff;
+      --shadow-dark: #c0c8d8;
+      --primary: #5b7be8;
+      --primary-dark: #4a67d4;
+      --danger: #e85b6a;
+      --warning: #e8a44a;
+      --success: #4ab87a;
+      --text-main: #2c3a5c;
+      --text-muted: #6878a0;
+      --text-light: #9aa5c0;
+
+      /* kid-friendly accent colours */
+      --candy-pink: #f472b6;
+      --candy-purple: #a78bfa;
+      --candy-blue: #60a5fa;
+      --candy-teal: #2dd4bf;
+      --candy-orange: #fb923c;
+      --candy-yellow: #facc15;
+      --candy-green: #4ade80;
+
+      --hero-gradient: linear-gradient(135deg, #a78bfa 0%, #60a5fa 40%, #2dd4bf 100%);
+      --encouragement-gradient: linear-gradient(135deg, #f472b6 0%, #fb923c 50%, #facc15 100%);
+
+      --neu-raised: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+      --neu-raised-sm: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+      --neu-inset: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
+      --neu-inset-sm: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      --neu-flat: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+
+      --font: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --radius: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --radius-xs: 10px;
+    }
+
+    /* ══════════════════════════════════════════
+       DARK THEME — matching module palette
+       ══════════════════════════════════════════ */
+    body.dark {
+      --bg: #1e2330;
+      --shadow-light: #262d3e;
+      --shadow-dark: #141820;
+      --primary: #7b9ef5;
+      --primary-dark: #5b7be8;
+      --danger: #f07080;
+      --warning: #f0b060;
+      --success: #5ecf8e;
+      --text-main: #d0d8f0;
+      --text-muted: #8892b0;
+      --text-light: #555f7a;
+
+      --candy-pink: #f472b6;
+      --candy-purple: #a78bfa;
+      --candy-blue: #60a5fa;
+      --candy-teal: #2dd4bf;
+      --candy-orange: #fb923c;
+      --candy-yellow: #facc15;
+      --candy-green: #4ade80;
+
+      --hero-gradient: linear-gradient(135deg, #4a3580 0%, #2a4090 40%, #1a5050 100%);
+      --encouragement-gradient: linear-gradient(135deg, #5a2040 0%, #5a3020 50%, #4a4010 100%);
+    }
+
+    /* ── Global transitions ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body,
+    body *,
+    body *::before,
+    body *::after {
+      transition:
+        background 0.45s ease,
+        background-color 0.45s ease,
+        color 0.45s ease,
+        box-shadow 0.45s ease,
+        border-color 0.45s ease;
+    }
+
+    /* Suppress transition on first load */
+    body.no-transition,
+    body.no-transition *,
+    body.no-transition *::before,
+    body.no-transition *::after {
+      transition: none !important;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1.08);
+      }
+
+      70% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes wiggle {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      15% {
+        transform: rotate(6deg);
+      }
+
+      30% {
+        transform: rotate(-5deg);
+      }
+
+      45% {
+        transform: rotate(4deg);
+      }
+
+      60% {
+        transform: rotate(-2deg);
+      }
+
+      75% {
+        transform: rotate(1deg);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    @keyframes softPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    @keyframes rainbow {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.6s ease-out both;
+    }
+
+    /* ════════════════════════════
+       THEME TOGGLE BUTTON
+       ════════════════════════════ */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      border: none;
+      background: var(--bg);
+      box-shadow: var(--neu-raised-sm);
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+      transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.45s ease, color 0.45s ease !important;
+    }
+
+    .theme-toggle:hover {
+      box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+      transform: scale(1.05);
+    }
+
+    .theme-toggle:active {
+      box-shadow: var(--neu-inset);
+      transform: scale(0.95);
+    }
+
+    .theme-toggle .icon-sun,
+    .theme-toggle .icon-moon {
+      transition: opacity 0.3s ease, transform 0.3s ease !important;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .theme-toggle .icon-sun {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+
+    .theme-toggle .icon-moon {
+      opacity: 0;
+      transform: rotate(-90deg);
+    }
+
+    body.dark .theme-toggle .icon-sun {
+      opacity: 0;
+      transform: rotate(90deg);
+    }
+
+    body.dark .theme-toggle .icon-moon {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+
+    /* ── Hero card ── */
+    .hero {
+      text-align: center;
+      padding: 36px 32px 30px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      box-shadow: var(--neu-raised);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-rainbow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--candy-pink), var(--candy-purple), var(--candy-blue), var(--candy-teal), var(--candy-green), var(--candy-yellow), var(--candy-orange), var(--candy-pink));
+      background-size: 200% auto;
+      animation: rainbow 4s linear infinite;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .hero-mascot {
+      font-size: 56px;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: bounceIn 0.6s ease-out both, float 3s ease-in-out 0.6s infinite;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      box-shadow: var(--neu-inset-sm);
+      border-radius: 100px;
+      padding: 7px 18px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--danger);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--danger);
+      animation: softPulse 2s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .hero .subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .site-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      box-shadow: var(--neu-inset-sm);
+      border-radius: var(--radius-xs);
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .site-pill .lock {
+      font-size: 15px;
+    }
+
+    .site-pill .site-name {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    /* ── Main card ── */
+    .card {
+      background: var(--bg);
+      border-radius: var(--radius);
+      box-shadow: var(--neu-raised);
+      overflow: hidden;
+    }
+
+    .card-section {
+      padding: 22px 26px;
+    }
+
+    .card-divider {
+      height: 2px;
+      margin: 0 26px;
+      background: var(--bg);
+      box-shadow: var(--neu-inset-sm);
+      border-radius: 2px;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label .emoji {
+      font-size: 16px;
+      display: inline-block;
+    }
+
+    .section-label.warning {
+      color: var(--warning);
+    }
+
+    .section-label.safe {
+      color: var(--success);
+    }
+
+    .section-label.explore {
+      color: var(--primary);
+    }
+
+    /* ── Why section ── */
+    .why-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .why-icon-box {
+      flex-shrink: 0;
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      box-shadow: var(--neu-raised-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      animation: wiggle 2s ease-in-out 1s 1;
+    }
+
+    .why-body p {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .why-body strong {
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 10px;
+      background: var(--bg);
+      box-shadow: var(--neu-inset-sm);
+      color: var(--warning);
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    /* ── Tips ── */
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .tips-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .tip-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--bg);
+      box-shadow: var(--neu-raised-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    /* ── Zones grid ── */
+    .zones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .zone-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--neu-raised-sm);
+      text-decoration: none;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    .zone-link:hover {
+      box-shadow: var(--neu-inset);
+      transform: scale(0.97);
+    }
+
+    .zone-link:active {
+      box-shadow: var(--neu-inset);
+      transform: scale(0.95);
+    }
+
+    .zone-link .zone-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg);
+      box-shadow: var(--neu-flat);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .zone-link:hover .zone-icon {
+      animation: wiggle 0.5s ease-in-out;
+    }
+
+    .zone-link .zone-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .zone-link .zone-desc {
+      font-size: 10px;
+      color: var(--text-light);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* ── Colourful zone accents (light mode only via coloured left-borders) ── */
+    .zone-link:nth-child(1) {
+      border-left: 3px solid var(--candy-pink);
+    }
+
+    .zone-link:nth-child(2) {
+      border-left: 3px solid var(--candy-purple);
+    }
+
+    .zone-link:nth-child(3) {
+      border-left: 3px solid var(--candy-blue);
+    }
+
+    .zone-link:nth-child(4) {
+      border-left: 3px solid var(--candy-teal);
+    }
+
+    .zone-link:nth-child(5) {
+      border-left: 3px solid var(--candy-orange);
+    }
+
+    .zone-link:nth-child(6) {
+      border-left: 3px solid var(--candy-green);
+    }
+
+    .zone-link:nth-child(7) {
+      border-left: 3px solid var(--candy-yellow);
+    }
+
+    .zone-link:nth-child(8) {
+      border-left: 3px solid var(--candy-pink);
+    }
+
+    .zone-link:nth-child(9) {
+      border-left: 3px solid var(--candy-purple);
+    }
+
+    .zone-link:nth-child(10) {
+      border-left: 3px solid var(--candy-blue);
+    }
+
+    .zone-link:nth-child(11) {
+      border-left: 3px solid var(--candy-teal);
+    }
+
+    .zone-link:nth-child(12) {
+      border-left: 3px solid var(--candy-orange);
+    }
+
+    /* ── Encouragement banner ── */
+    .encouragement {
+      background: var(--bg);
+      border-radius: var(--radius);
+      box-shadow: var(--neu-raised);
+      padding: 22px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .encouragement-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--candy-pink), var(--candy-purple), var(--candy-blue), var(--candy-teal), var(--candy-green), var(--candy-yellow), var(--candy-orange), var(--candy-pink));
+      background-size: 200% auto;
+      animation: rainbow 4s linear infinite;
+    }
+
+    .encouragement .emoji-row {
+      font-size: 28px;
+      letter-spacing: 8px;
+      margin-bottom: 10px;
+    }
+
+    .encouragement .enc-text {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.4;
+    }
+
+    .encouragement .enc-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ── Quote ── */
+    .quote {
+      text-align: center;
+      padding: 18px 28px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      box-shadow: var(--neu-raised);
+    }
+
+    .quote-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+      display: inline-block;
+      opacity: 0.5;
+    }
+
+    .quote-text {
+      font-size: 14px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .quote-author {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--candy-purple);
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 4px 0;
+    }
+
+    .footer img {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      opacity: 0.35;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 28px 20px 24px;
+      }
+
+      .hero h1 {
+        font-size: 20px;
+      }
+
+      .hero-mascot {
+        font-size: 44px;
+      }
+
+      .card-section {
+        padding: 18px 20px;
+      }
+
+      .zones-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .theme-toggle {
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        border-radius: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body class="no-transition">
+
+  <!-- ── Theme toggle (fixed corner) ── -->
+  <button class="theme-toggle" id="themeToggle" title="Switch theme">
+    <span class="icon-sun">☀️</span>
+    <span class="icon-moon">🌙</span>
+  </button>
+
+  <div class="page">
+
+    <!-- ── Hero ── -->
+    <div class="hero">
+      <div class="hero-rainbow"></div>
+      <div class="hero-mascot">🛡️</div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Access Restricted
+      </div>
+      <h1>Oops! This Site Is Blocked</h1>
+      <p class="subtitle">Don't worry — we're keeping you safe! 💪</p>
+      <div class="site-pill">
+        <span class="lock">🔒</span>
+        <span class="site-name" id="siteName">this site</span>
+      </div>
+    </div>
+
+    <!-- ── Info card ── -->
+    <div class="card">
+
+      <!-- Why -->
+      <div class="card-section">
+        <div class="section-label warning">
+          <span class="emoji">⚠️</span> Why Was This Blocked?
+        </div>
+        <div class="why-content">
+          <div class="why-icon-box" id="whyIcon">🛡️</div>
+          <div class="why-body">
+            <p id="whyText">This website has been restricted by a parent or guardian to help you stay safe online.</p>
+            <span class="tag" id="categoryTag">Protected Zone</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <!-- Tips -->
+      <div class="card-section">
+        <div class="section-label safe">
+          <span class="emoji">✅</span> Stay Safe Online!
+        </div>
+        <ul class="tips-list" id="tipsList"></ul>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <!-- Approved zones -->
+      <div class="card-section">
+        <div class="section-label explore">
+          <span class="emoji">🚀</span> Fun & Safe Places to Explore!
+        </div>
+        <div class="zones-grid">
+          <a href="https://www.kidzsearch.com" target="_blank" class="zone-link">
+            <span class="zone-icon">🔍</span>
+            <div>
+              <div class="zone-name">KidzSearch</div>
+              <div class="zone-desc">Safe search engine</div>
+            </div>
+          </a>
+          <a href="https://www.khanacademy.org" target="_blank" class="zone-link">
+            <span class="zone-icon">🎓</span>
+            <div>
+              <div class="zone-name">Khan Academy</div>
+              <div class="zone-desc">Free lessons & courses</div>
+            </div>
+          </a>
+          <a href="https://www.britannica.com/kids" target="_blank" class="zone-link">
+            <span class="zone-icon">📚</span>
+            <div>
+              <div class="zone-name">Britannica Kids</div>
+              <div class="zone-desc">Encyclopaedia & facts</div>
+            </div>
+          </a>
+          <a href="https://www.duolingo.com" target="_blank" class="zone-link">
+            <span class="zone-icon">🦉</span>
+            <div>
+              <div class="zone-name">Duolingo</div>
+              <div class="zone-desc">Learn a language</div>
+            </div>
+          </a>
+          <a href="https://www.pbskids.org" target="_blank" class="zone-link">
+            <span class="zone-icon">📺</span>
+            <div>
+              <div class="zone-name">PBS Kids</div>
+              <div class="zone-desc">Safe shows & activities</div>
+            </div>
+          </a>
+          <a href="https://www.nationalgeographic.com/kids" target="_blank" class="zone-link">
+            <span class="zone-icon">🌍</span>
+            <div>
+              <div class="zone-name">Nat Geo Kids</div>
+              <div class="zone-desc">Science & nature</div>
+            </div>
+          </a>
+          <a href="https://www.coolmath-games.com" target="_blank" class="zone-link">
+            <span class="zone-icon">🧮</span>
+            <div>
+              <div class="zone-name">CoolMath Games</div>
+              <div class="zone-desc">Fun brain & math games</div>
+            </div>
+          </a>
+          <a href="https://scratch.mit.edu" target="_blank" class="zone-link">
+            <span class="zone-icon">🐱</span>
+            <div>
+              <div class="zone-name">Scratch (MIT)</div>
+              <div class="zone-desc">Create games & stories</div>
+            </div>
+          </a>
+          <a href="https://www.nasa.gov/kids-and-education" target="_blank" class="zone-link">
+            <span class="zone-icon">🚀</span>
+            <div>
+              <div class="zone-name">NASA Kids</div>
+              <div class="zone-desc">Space & science</div>
+            </div>
+          </a>
+          <a href="https://www.tynker.com" target="_blank" class="zone-link">
+            <span class="zone-icon">💻</span>
+            <div>
+              <div class="zone-name">Tynker</div>
+              <div class="zone-desc">Learn to code</div>
+            </div>
+          </a>
+          <a href="https://www.funbrain.com" target="_blank" class="zone-link">
+            <span class="zone-icon">🧠</span>
+            <div>
+              <div class="zone-name">FunBrain</div>
+              <div class="zone-desc">Games, books & videos</div>
+            </div>
+          </a>
+          <a href="https://www.starfall.com" target="_blank" class="zone-link">
+            <span class="zone-icon">⭐</span>
+            <div>
+              <div class="zone-name">Starfall</div>
+              <div class="zone-desc">Reading & phonics</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Encouragement ── -->
+    <div class="encouragement">
+      <div class="emoji-row">🌟📖🎨🧪</div>
+      <div class="enc-text">There's a whole world of awesome stuff to discover!</div>
+      <div class="enc-sub">Try one of the safe sites above — they're really fun! 🎉</div>
+      <div class="encouragement-bar"></div>
+    </div>
+
+    <!-- ── Quote ── -->
+    <div class="quote">
+      <div class="quote-icon">💡</div>
+      <div class="quote-text" id="quoteText"></div>
+      <div class="quote-author" id="quoteAuthor"></div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="footer">
+      <img data-ext-src="icon48.png" alt="">
+      Child Safety Module &middot; Keeping You Safe
+    </div>
+
+  </div>
+  <script src="blocked.js"></script>
+</body>
+
+</html>
